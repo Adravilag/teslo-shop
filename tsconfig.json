@@ -3,6 +3,16 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@app/*": ["src/app/*"],
+      "@auth/*": ["src/app/auth/*"],
+      "@products/*": ["src/app/products/*"],
+      "@shared/*": ["src/app/shared/*"],
+      "@store-front/*": ["src/app/store-front/*"],
+      "dashboard/*": ["src/app/admin-dashboard/*"],
+      "@environments/*": ["src/environments/*"]
+    },
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,

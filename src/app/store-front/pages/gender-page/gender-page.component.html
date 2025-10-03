@@ -1,0 +1,13 @@
+<h1 class="text-3xl font-bold font-montserrat">Todos los productos</h1>
+<h2 class="text-xl">Para todos los gustos</h2>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 my-4">
+@if (productsResource.value()) {
+  @for (product of productsResource.value()?.products; track product.id) {
+    <product-card [product]="product" />
+  }
+} @else if (productsResource.isLoading()) {
+  <div>Cargando productos...</div>
+} @else if (productsResource.error()) {
+  <div>Error al cargar productos: {{ productsResource.error() }}</div>
+}
