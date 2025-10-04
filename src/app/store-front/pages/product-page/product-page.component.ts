@@ -3,12 +3,13 @@ import { ActivatedRoute } from '@angular/router';
 import { Product } from '@app/products/interfaces/product.interface';
 import { ProductsService } from '@app/products/services/products.service';
 import { firstValueFrom } from 'rxjs';
-import { DecimalPipe, SlicePipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { ProductCarouselComponent } from '@app/products/components/product-carousel/product-carousel.component';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-product-page',
-  imports: [ProductCarouselComponent, DecimalPipe, SlicePipe],
+  imports: [ProductCarouselComponent, DecimalPipe],
   templateUrl: './product-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -19,8 +20,11 @@ export class ProductPageComponent {
 
   productIdSlug = this.routes.snapshot.params['slug'] || this.routes.snapshot.params['idSlug'] || '';
 
-  productResource = resource<Product, {}>({
-    loader: () => firstValueFrom(this.productService.getProductBySlug(this.productIdSlug))
+  productResource = rxResource<Product, {}>({
+    params: () => ({}),
+    stream: () => {
+      return this.productService.getProductBySlug(this.productIdSlug);
+    }
   });
 
 }
