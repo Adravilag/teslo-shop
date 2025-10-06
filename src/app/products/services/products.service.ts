@@ -48,6 +48,17 @@ export class ProductsService {
     );
   }
 
+  getProductById(id: string): Observable<Product> {
+    if (this.productCache.has(id)) {
+      return of(this.productCache.get(id)!);
+    }
+    return this.http.get<Product>(`${baseUrl}/products/${id}`).pipe(
+      tap((product) => {
+        this.productCache.set(id, product);
+      })
+    );
+  }
+
   getProductsByGender(gender: string): Observable<ProductsResponse> {
     return this.getsProducts({ gender, limit: 20, offset: 0 });
   }
