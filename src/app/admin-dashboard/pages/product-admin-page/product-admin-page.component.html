@@ -5,5 +5,7 @@
 }
 
 @if (productResource.hasValue()) {
-  <h1>{{ productResource.value().title}}  </h1>
+  <div class="h-full overflow-auto p-6">
+    <app-product-details [product]="productResource.value()!"></app-product-details>
+  </div>
 }

@@ -4,10 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Product, ProductsResponse } from '@app/products/interfaces/product.interface';
 import { ProductsService } from '@app/products/services/products.service';
 import { map } from 'rxjs';
+import { ProductDetailsComponent } from './ProductDetails/ProductDetails.component';
 
 @Component({
   selector: 'app-product-admin-page',
-  imports: [],
+  imports: [ProductDetailsComponent],
   templateUrl: './product-admin-page.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -18,9 +19,10 @@ export class ProductAdminPageComponent {
 
   productId = toSignal(this.activatedRoute.params.pipe(map((params) => params['id'])));
 
-  productResource = rxResource({
+  productResource = rxResource<Product, { id: string | undefined }>({
     params: () => ({ id: this.productId() }),
     stream: ({ params }) => {
+      if (!params.id) throw new Error('Product ID is required');
       return this.productService.getProductById(params.id);
     }
   });

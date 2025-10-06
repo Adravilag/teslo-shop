@@ -1,0 +1,224 @@
+﻿<div class="space-y-6">
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-3xl font-bold">{{ product().title }}</h1>
+        <p class="text-sm opacity-60 mt-1">ID: {{ product().id }}</p>
+      </div>
+      <button class="btn btn-secondary text-amber-50">Guardar cambios</button>
+    </div>
+
+    <div class="divider"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="card bg-base-200 shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title text-xl mb-4">Información básica</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label"
+                  ><span class="label-text font-semibold">Título del producto</span></label
+                >
+                <input
+                  type="text"
+                  placeholder="Título"
+                  class="input input-bordered w-full"
+                  [value]="product().title"
+                  formControlName="title"
+                  [class.border-red-500]="productForm.get('title')?.errors ?? false"
+                />
+                @if (productForm.get('title')?.invalid && productForm.get('title')?.touched) {
+                <form-error-label [control]="productForm.get('title')!"></form-error-label>
+                }
+              </div>
+              <div class="form-control">
+                <label class="label"><span class="label-text font-semibold">Slug</span></label>
+                <input
+                  type="text"
+                  placeholder="Slug"
+                  class="input input-bordered w-full"
+                  [value]="product().slug"
+                  formControlName="slug"
+                  [class.border-red-500]="productForm.get('slug')?.errors ?? false"
+                />
+                @if (productForm.get('slug')?.invalid && productForm.get('slug')?.touched) {
+                <form-error-label [control]="productForm.get('slug')!"></form-error-label>
+                }
+              </div>
+            </div>
+
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text font-semibold">Descripción</span>
+                <span class="label-text-alt">Máx. 500 caracteres</span>
+              </label>
+              <textarea
+                class="textarea textarea-bordered h-32 w-full"
+                placeholder="Descripción"
+                [value]="product().description"
+                formControlName="description"
+                [class.border-red-500]="productForm.get('description')?.errors ?? false"
+              ></textarea>
+              @if (productForm.get('description')?.invalid &&
+              productForm.get('description')?.touched) {
+              <form-error-label [control]="productForm.get('description')!"></form-error-label>
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title text-xl mb-4">Datos de venta</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="form-control">
+                <label class="label"><span class="label-text font-semibold">Precio</span></label>
+                <label class="input-group">
+                  <span> €</span>
+                  <input
+                    type="number"
+                    placeholder="0.00"
+                    class="input input-bordered w-full"
+                    [value]="product().price"
+                    formControlName="price"
+                    step="0.01"
+                    min="0"
+                    [class.border-red-500]="productForm.get('price')?.errors ?? false"
+                  />
+                </label>
+                @if (productForm.get('price')?.invalid && productForm.get('price')?.touched) {
+                <form-error-label [control]="productForm.get('price')!"></form-error-label>
+                }
+              </div>
+              <div class="form-control">
+                <label class="label"
+                  ><span class="label-text font-semibold">Inventario</span></label
+                >
+                <input
+                  type="number"
+                  placeholder="0"
+                  class="input input-bordered w-full"
+                  [value]="product().stock"
+                  formControlName="stock"
+                  min="0"
+                  [class.border-red-500]="productForm.get('stock')?.errors ?? false"
+                />
+                @if (productForm.get('stock')?.invalid && productForm.get('stock')?.touched) {
+                <form-error-label [control]="productForm.get('stock')!"></form-error-label>
+                }
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold">Etiquetas</span>
+                  <span class="label-text-alt">Separadas por comas</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Tags"
+                  class="input input-bordered w-full"
+                  formControlName="tags"
+                  [value]="product().tags.join(', ')"
+                  [class.border-red-500]="productForm.get('tags')?.errors ?? false"
+                />
+                @if (productForm.get('tags')?.invalid && productForm.get('tags')?.touched) {
+                <form-error-label [control]="productForm.get('tags')!"></form-error-label>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card bg-base-200 shadow-lg">
+          <div class="card-body">
+            <h2 class="card-title text-xl mb-4">Categorización</h2>
+
+            <div class="form-control">
+              <label class="label"><span class="label-text font-semibold">Género</span></label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button
+                  class="btn btn-sm"
+                  [class.btn-accent]="productForm.value.gender === 'men'"
+                  [class.btn-outline]="productForm.value.gender !== 'men'"
+                  (click)="productForm.patchValue({ gender: 'men' })"
+                >
+                  Masculino
+                </button>
+                <button
+                  class="btn btn-sm"
+                  [class.btn-accent]="productForm.value.gender === 'women'"
+                  [class.btn-outline]="productForm.value.gender !== 'women'"
+                  (click)="productForm.patchValue({ gender: 'women' })"
+                >
+                  Femenino
+                </button>
+                <button
+                  class="btn btn-sm"
+                  [class.btn-accent]="productForm.value.gender === 'kid'"
+                  [class.btn-outline]="productForm.value.gender !== 'kid'"
+                  (click)="productForm.patchValue({ gender: 'kid' })"
+                >
+                  Infantil
+                </button>
+                <button
+                  class="btn btn-sm"
+                  [class.btn-accent]="productForm.value.gender === 'unisex'"
+                  [class.btn-outline]="productForm.value.gender !== 'unisex'"
+                  (click)="productForm.patchValue({ gender: 'unisex' })"
+                >
+                  Unisex
+                </button>
+              </div>
+            </div>
+
+            <div class="form-control">
+              <label class="label"
+                ><span class="label-text font-semibold">Tallas disponibles</span></label
+              >
+              <div class="grid grid-cols-6 gap-2">
+                @for (size of sizes; track size) {
+                <button
+                  class="btn btn-sm"
+                  [class.btn-primary]="product().sizes.includes(size)"
+                  [class.btn-outline]="!product().sizes.includes(size)"
+                  [class.btn-secondary]="!product().sizes.includes(size)"
+                  (click)="onSizeClicked(size)"
+                >
+                  {{ size }}
+                </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="card bg-base-200 shadow-lg sticky top-4">
+          <div class="card-body">
+            <h2 class="card-title text-xl mb-4">Galería de imágenes</h2>
+
+            <product-carousel [images]="product().images" class="rounded-lg overflow-hidden" />
+
+            <div class="alert alert-info shadow-sm">
+              <span class="text-sm">Formatos: JPG, PNG, WEBP (máx. 5MB)</span>
+            </div>
+
+            <div class="form-control">
+              <label class="label"
+                ><span class="label-text font-semibold">Subir nueva imagen</span></label
+              >
+              <input
+                type="file"
+                class="file-input file-input-bordered w-full"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

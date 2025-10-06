@@ -28,13 +28,15 @@ export class ProductsService {
       return of(this.productsCache.get(key)!);
     }
 
-    return this.http.get<ProductsResponse>(`${baseUrl}/products`, {
-      params: { limit, offset, gender },
-    }).pipe(
-      tap((response) => {
-        this.productsCache.set(key, response);
+    return this.http
+      .get<ProductsResponse>(`${baseUrl}/products`, {
+        params: { limit, offset, gender },
       })
-    );
+      .pipe(
+        tap((response) => {
+          this.productsCache.set(key, response);
+        })
+      );
   }
 
   getProductBySlug(slug: string): Observable<Product> {
@@ -63,4 +65,11 @@ export class ProductsService {
     return this.getsProducts({ gender, limit: 20, offset: 0 });
   }
 
+  updateProduct(productLike: Partial<Product>, productId: string): Observable<Product> {
+    return this.http.patch<Product>(`${baseUrl}/products/${productId}`, productLike).pipe(
+      tap((updatedProduct) => {
+        this.productCache.set(productId, updatedProduct);
+      })
+    );
+  }
 }
