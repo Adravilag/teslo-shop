@@ -3,9 +3,10 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { environment } from '@environments/environment.development';
 
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated';
-const baseUrl = 'http://localhost:3000/api';
+const baseUrl = environment.baseUrl;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
