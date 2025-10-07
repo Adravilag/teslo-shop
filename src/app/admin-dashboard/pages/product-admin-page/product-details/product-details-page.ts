@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Product, Size } from '@app/products/interfaces/product.interface';
 import { ProductCarouselComponent } from '@app/products/components/product-carousel/product-carousel.component';
@@ -6,18 +6,24 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormUtils } from '@app/utils/form-utils';
 import { FormErrorLabelComponent } from '@app/shared/components/form-error-label/form-error-label.component';
 import { ProductsService } from '@app/products/services/products.service';
+import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-product-details',
   imports: [CommonModule, ProductCarouselComponent, ReactiveFormsModule, FormErrorLabelComponent],
-  templateUrl: './ProductDetails.component.html',
+  templateUrl: './product-details-page.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductDetailsComponent implements OnInit {
   product = input.required<Product>();
-  productService = inject(ProductsService);
 
+  router = inject(Router);
   fb = inject(FormBuilder);
+
+  productService = inject(ProductsService);
+  wasSaved = signal(false);
+
   sizes: Size[] = [Size.XS, Size.S, Size.M, Size.L, Size.XL, Size.XXL];
 
   ngOnInit(): void {
@@ -45,7 +51,10 @@ export class ProductDetailsComponent implements OnInit {
 
   private normalizeTagsFromForm(tags: any): string[] {
     if (Array.isArray(tags)) return tags;
-    return String(tags || '').split(',').map(tag => tag.trim().toLowerCase()).filter(t => t.length > 0);
+    return String(tags || '')
+      .split(',')
+      .map((tag) => tag.trim().toLowerCase())
+      .filter((t) => t.length > 0);
   }
 
   private buildProductFromForm(): Partial<Product> | null {
@@ -55,18 +64,25 @@ export class ProductDetailsComponent implements OnInit {
 
     const formValue = this.productForm.value;
     return {
-      ...formValue as any,
+      ...(formValue as any),
       tags: this.normalizeTagsFromForm(formValue.tags),
     };
   }
 
-  onSubmit() {
+  async onSubmit() {
     const productLike = this.buildProductFromForm();
     if (!productLike) return;
 
-    this.productService.updateProduct(productLike, this.product().id).subscribe(updatedProduct => {
-      this.setFormValue(updatedProduct);
-    });
+    if (this.product().id === 'new') {
+      const product = await firstValueFrom(this.productService.createProduct(productLike));
+      this.router.navigate(['/admin/products']);
+    } else {
+      await firstValueFrom(
+        this.productService.updateProduct(productLike, this.product().id)
+      );
+      this.wasSaved.set(true);
+      setTimeout(() => this.wasSaved.set(false), 3000);
+    }
   }
 
   updateProduct() {

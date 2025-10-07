@@ -9,8 +9,9 @@ const baseUrl = environment.baseUrl;
 })
 
 export class ProductImagePipe implements PipeTransform {
-  transform(value: string | string[], ...args: any[]): string {
-    if (!value || (Array.isArray(value) && value.length === 0)) {
+  transform(value: null | string | string[], ...args: any[]): string {
+
+    if (!value || (Array.isArray(value) && value.length === 0) || value === null) {
       return '/assets/images/product-placeholder.svg';
     }
 

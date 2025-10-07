@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Product, ProductsResponse } from '@app/products/interfaces/product.interface';
 import { ProductsService } from '@app/products/services/products.service';
 import { map } from 'rxjs';
-import { ProductDetailsComponent } from './ProductDetails/ProductDetails.component';
+import { ProductDetailsComponent } from './product-details/product-details-page';
 
 @Component({
   selector: 'app-product-admin-page',

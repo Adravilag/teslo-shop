@@ -11,6 +11,14 @@
           class="w-full h-full object-cover rounded-lg animate-fadeIn"
         />
       </div>
+    } @empty {
+      <div class="swiper-slide">
+        <img
+          [src]="null | productImage"
+          [alt]="'Product image placeholder'"
+          class="w-full h-full object-cover rounded-lg animate-fadeIn"
+        />
+      </div>
     }
   </div>
   <!-- If we need pagination -->
