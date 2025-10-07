@@ -199,7 +199,11 @@
           <div class="card-body">
             <h2 class="card-title text-xl mb-4">Galería de imágenes</h2>
 
-            <product-carousel [images]="product().images" class="rounded-lg overflow-hidden" />
+            <product-carousel
+              [images]="imagesToCarousel()"
+              [productId]="product().id"
+              (imageDeleted)="onImageDeleted($event)"
+              class="rounded-lg overflow-hidden" />
 
             <div class="alert alert-info shadow-sm">
               <span class="text-sm">Formatos: JPG, PNG, WEBP (máx. 5MB)</span>
@@ -214,7 +218,18 @@
                 class="file-input file-input-bordered w-full"
                 accept="image/jpeg,image/png,image/webp"
                 multiple
+                (change)="onFilesChanged($event)"
               />
+              <div class="mt-2">
+                <p class="mb-2 font-semibold">Imágenes a subir:</p>
+                <div class="flex gap-2 overflow-x-auto">
+                  @for (img of tempImages(); track img) {
+                  <div class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border border-slate-300">
+                    <img [src]="img" alt="Imagen a subir" class="w-full h-full object-cover " />
+                  </div>
+                  }
+                </div>
+              </div>
             </div>
           </div>
         </div>

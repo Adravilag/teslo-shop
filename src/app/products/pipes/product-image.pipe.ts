@@ -11,6 +11,10 @@ const baseUrl = environment.baseUrl;
 export class ProductImagePipe implements PipeTransform {
   transform(value: null | string | string[], ...args: any[]): string {
 
+    if (value && typeof value === 'string' && value.startsWith('blob:')) {
+      return value;
+    }
+
     if (!value || (Array.isArray(value) && value.length === 0) || value === null) {
       return '/assets/images/product-placeholder.svg';
     }

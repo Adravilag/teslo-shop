@@ -6,6 +6,8 @@
 
 @if (productResource.hasValue()) {
   <div class="h-full overflow-auto p-6">
-    <app-product-details [product]="productResource.value()!"></app-product-details>
+    <app-product-details
+      [product]="productResource.value()!"
+      (productUpdated)="onProductUpdated($event)"></app-product-details>
   </div>
 }

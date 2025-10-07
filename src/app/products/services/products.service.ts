@@ -1,10 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Gender, Product, ProductsResponse } from '../interfaces/product.interface';
-import { catchError, delay, Observable, of, tap, throwError } from 'rxjs';
+import { catchError, delay, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { User } from '@app/auth/interfaces/user.interface';
+import { environment } from '@environments/environment.development';
 
-const baseUrl = 'http://localhost:3000/api';
+const baseUrl = environment.baseUrl;
 
 interface Options {
   limit?: number;
@@ -84,12 +85,34 @@ export class ProductsService {
     return this.getsProducts({ gender, limit: 20, offset: 0 });
   }
 
-  updateProduct(productLike: Partial<Product>, productId: string): Observable<Product> {
-    return this.http.patch<Product>(`${baseUrl}/products/${productId}`, productLike).pipe(
-      tap((updatedProduct) => {
-        this.updateProductCache(updatedProduct);
+  updateProduct(
+    productLike: Partial<Product>,
+    productId: string,
+    imageFileList?: FileList
+  ): Observable<Product> {
+    const currentImages = productLike.images ?? [];
+    return this.uploadImages(imageFileList).pipe(
+      map((imageUrls) => {
+        const updatedProduct = {
+          ...productLike,
+          images: [...currentImages, ...imageUrls.map((url: any) => url.fileName)],
+        };
+        return updatedProduct;
+      }),
+      switchMap((updatedProduct: Partial<Product>) => {
+        return this.http.patch<Product>(`${baseUrl}/products/${productId}`, updatedProduct).pipe(
+          tap((updatedProduct) => {
+            this.updateProductCache(updatedProduct);
+          })
+        );
       })
     );
+
+    // return this.http.patch<Product>(`${baseUrl}/products/${productId}`, productLike).pipe(
+    //   tap((updatedProduct) => {
+    //     this.updateProductCache(updatedProduct);
+    //   })
+    // );
   }
 
   updateProductCache(product: Product) {
@@ -109,7 +132,7 @@ export class ProductsService {
     });
   }
 
-  createProduct(productLike: Partial<Product>): Observable<Product> {
+  createProduct(productLike: Partial<Product>, imageFileList?: FileList): Observable<Product> {
     return this.http.post<Product>(`${baseUrl}/products`, productLike).pipe(
       tap((newProduct) => {
         this.addProductToCache(newProduct);
@@ -136,5 +159,67 @@ export class ProductsService {
         productsResponse.count += 1;
       }
     });
+  }
+
+  uploadImages(images?: FileList): Observable<string[]> {
+    if (!images || images.length === 0) {
+      return of([]);
+    }
+    const uploadObservables = Array.from(images).map((imageFile) => {
+      return this.uploadImage(imageFile);
+    });
+    // Usar forkJoin para esperar a que todas las subidas terminen
+    return forkJoin(uploadObservables).pipe(
+      tap((imageUrls) => {
+        console.log('✅ Imágenes subidas:', imageUrls);
+      })
+    );
+  }
+
+  uploadImage(imageFile: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', imageFile);
+    return this.http.post<string>(`${baseUrl}/files/product`, formData).pipe(
+      catchError((error) => {
+        console.error('❌ Error al subir imagen:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  deleteFile(imageFileName: string): Observable<any> {
+    return this.http.delete(`${baseUrl}/files/product/${imageFileName}`).pipe(
+      catchError((error) => {
+        console.error('Error al eliminar archivo en el servidor:', error); // Aquí puedes decidir si quieres que el error de eliminación del archivo // detenga toda la operación o simplemente loguee el error. // Por simplicidad, lo dejaremos pasar para que no bloquee la actualización del producto.
+        return of(null);
+      })
+    );
+  }
+
+  deleteImage(
+    productId: string,
+    imageFileName: string,
+    currentImages: string[]
+  ): Observable<Product> {
+    // 1. Filtra la lista de imágenes para quitar la que se desea eliminar.
+    const updatedImages = currentImages.filter((img) => img !== imageFileName);
+
+    // 2. Prepara el objeto parcial para la actualización.
+    const updatedProductLike: Partial<Product> = { images: updatedImages };
+
+    // 3. Primero eliminar el archivo físico del backend, luego actualizar el producto
+    return this.deleteFile(imageFileName).pipe(
+      switchMap(() => {
+        // 4. Actualizar el producto sin las imágenes eliminadas
+        return this.updateProduct(updatedProductLike, productId);
+      }),
+      tap(() => {
+        console.log(`Imagen ${imageFileName} eliminada completamente del producto ${productId}.`);
+      }),
+      catchError((error) => {
+        console.error(`Error al eliminar imagen ${imageFileName}:`, error);
+        return throwError(() => error);
+      })
+    );
   }
 }

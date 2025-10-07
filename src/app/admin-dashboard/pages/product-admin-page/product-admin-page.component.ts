@@ -33,4 +33,12 @@ export class ProductAdminPageComponent {
     }
   });
 
+  onProductUpdated(updatedProduct: Product) {
+    // Forzar la recarga del recurso actualizando el caché del servicio
+    this.productService.updateProductCache(updatedProduct);
+
+    // Recargar el recurso para reflejar los cambios
+    this.productResource.reload();
+  }
+
 }
