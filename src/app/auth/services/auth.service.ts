@@ -3,7 +3,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { AuthResponse } from '../interfaces/auth-response.interface';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { environment } from '@environments/environment.development';
+import { environment } from '@environments/environment';
 
 type AuthStatus = 'checking' | 'authenticated' | 'not-authenticated';
 const baseUrl = environment.baseUrl;

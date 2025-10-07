@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Gender, Product, ProductsResponse } from '../interfaces/product.interface';
 import { catchError, delay, forkJoin, map, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { User } from '@app/auth/interfaces/user.interface';
-import { environment } from '@environments/environment.development';
+import { environment } from '@environments/environment';
 
 const baseUrl = environment.baseUrl;
 
